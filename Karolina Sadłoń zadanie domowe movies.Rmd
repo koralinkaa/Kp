@@ -1,0 +1,73 @@
+---
+title: "Zadanie domowe, baza Movies-Ratings"
+author: "Karolina Sad³oñ"
+date: "16 grudnia 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## KROK PO KROKU
+Poni¿ej zamieszkam co zrobi³am krok po kroku, aby stworzyæ odpowiednie wykresy i dostsowaæ baze 'Movies-Ratings'. 
+
+```{r}
+movie <- read.csv(file.choose()) #niestety dzia³a  to mnie tylko z t¹ komend¹, gdzie trzeba wybraæ plik "Movie-Ratings.csv"
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+colnames(movie)<-c("Film","Genre","CriticR","AudienceR","Budget","Year")                 
+movie$Year<-as.factor(movie$Year)
+library(gridExtra)
+
+
+#Wykres 9
+Movie2<-movie %>%
+  gather('AudienceR','CriticR', key='Rater', value = 'Rating')
+
+  ggplot(Movie2,aes(x=Rater,y=Rating, col=Year))+
+ geom_jitter(size=0.2)+
+   geom_boxplot(alpha=0.6)+
+  labs(title="Wykresy skrzynkowe w zale¿onœci od grupy oceniaj¹cej",
+       x="Grupa",y="Ocena na sakli 0-100")
+
+```
+
+**INTERPRETACJA 1:**
+
+Wykres prezentuje oceny filów Publicznoœci i Krytyków w skali 0-100 z podzia³em na lata 2007-2011 
+Na wykresie skrzynkowym w zale¿noœci od grupy oceniaj¹cej mo¿emy zauwa¿yæ, ¿e oceny w obu grupach s¹ bardzo rozproszone, co nie jest dziwne, bo ka¿dy ocenia film wed³ug swojego gustu.
+Na pierwszy rzut oka mo¿na stwierdziæ, ¿e Krytycy(CriticR) oceniaj¹ filmy znacznie ni¿ej ni¿ widzowie (AudienceR). Tylko w 2011 roku wystêpuje sytuacja, w której maksymalna ocena Publicznoœci i krytyków jest równa.
+
+Wykres 8
+```{r fig.width=15}
+Movie3<-movie %>%
+  mutate(Ró¿nica=CriticR-AudienceR)
+
+wykresik2<-Movie3 %>%
+  ggplot(aes(x=Budget, y=Ró¿nica))+
+  geom_point(size=1, aes(col=Genre))+
+  geom_smooth(se=FALSE,method=lm)+
+  labs(y=' ')
+
+wykresik3<-Movie3 %>%
+  ggplot(aes(x=Budget, y=Ró¿nica, col=Genre))+
+  geom_point(size=1)+
+  guides(col=F)+
+  facet_grid(.~Genre)+
+  geom_smooth(se=FALSE, method=lm, col="Black")+
+  labs(y='Ró¿nica oceny miêdzy krytykami, a publicznoœci¹')
+
+grid.arrange(wykresik3,wykresik2, ncol=2, nrow=1)  
+```
+**INTERPRETACJA 2:**
+
+Kolejne wykresy przedstawiaj¹ ró¿nicê w ocenach Krytyków i widowni bior¹c pod uwagê bud¿et. Filmy zosta³y podzielone ze wzglêdu na gatunki.
+Im ni¿ej krytycy ocenili film w porównaniu do publicznoœci tym wiêksza jest wartoœæ oceny na minusie. 
+Bior¹c pod uwagê ten fakt, mo¿na stwierdziæ, ¿e publicznoœæ ocenia filmy wy¿ej ni¿ krytycy. 
+Najwiêksze ró¿nice ocen mo¿na zaobserwowac przy filmach Akcji i Komediach. 
+Bud¿et nie ma wp³ywu na ocenê filmów. 
+Najwiêksze ró¿nice w ocenach mo¿na zauwa¿yæ przy filmach Komediowych, Dramatah, Horrorach i Romansach. 
+ Najwiêksze bud¿ety maj¹ filmy akcji. 
